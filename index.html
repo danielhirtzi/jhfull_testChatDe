@@ -30,17 +30,24 @@
 console.log("Host script loaded");
 
 window.addEventListener("message", function(event) {
-    // Match the actual event structure seen in console logs
     if (event.data && event.data.event === "dispatchEventToHost" && event.data.data) {
-        var dataStr = JSON.stringify(event.data);
-        console.log("dispatchEventToHost received, eventName:", event.data.data.eventName);
+        var eventData = event.data.data.eventData;
 
-        if (dataStr.includes('"choices"') && !dataStr.includes('"choicesResponse"') && !dataStr.includes('"choiceResponse"')) {
-            console.log("CHOICES DETECTED - Disabling input");
-            postIframeDisable();
-        } else if (dataStr.includes('"choicesResponse"') || dataStr.includes('"choiceResponse"')) {
-            console.log("CHOICE RESPONSE DETECTED - Enabling input");
-            postIframeEnable();
+        if (eventData && eventData.conversationEntry && eventData.conversationEntry.entryPayload) {
+            try {
+                var payload = JSON.parse(eventData.conversationEntry.entryPayload);
+                console.log("Parsed entryPayload:", payload);
+
+                if (payload.abstractMessage && payload.abstractMessage.choices) {
+                    console.log("CHOICES DETECTED - Disabling input");
+                    postIframeDisable();
+                } else if (payload.abstractMessage && payload.abstractMessage.choicesResponse) {
+                    console.log("CHOICE RESPONSE - Enabling input");
+                    postIframeEnable();
+                }
+            } catch(e) {
+                console.error("Error parsing entryPayload:", e);
+            }
         }
     }
 });
