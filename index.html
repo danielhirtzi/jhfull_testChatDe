@@ -6,8 +6,7 @@
 </head>
 <body>
   <h1>JamesHardie FULL Chat DE</h1>
-  
-<!-- Your existing Salesforce snippet -->
+
 <script type='text/javascript'>
     function initEmbeddedMessaging() {
         try {
@@ -23,80 +22,50 @@
         } catch (err) {
             console.error('Error loading Embedded Messaging: ', err);
         }
-    };
+    }
 </script>
 <script type='text/javascript' src='https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 
-<!-- ADD THIS SCRIPT - Listens for choices and toggles input -->
 <script>
-window.addEventListener("message", (event) => {
-    if ((event.data.method === "EMBEDDED_MESSAGING_DISPATCH_EVENT_TO_HOST" && 
-         event.data.data.eventDetails.conversationEntry && 
-         event.data.data.eventDetails.conversationEntry.entryPayload)) {
-        let payload = JSON.parse(event.data.data.eventDetails.conversationEntry.entryPayload);
-        if (payload.abstractMessage && payload.abstractMessage.choices) {
+console.log("Host script loaded");
+
+window.addEventListener("message", function(event) {
+    // Match the actual event structure seen in console logs
+    if (event.data && event.data.event === "dispatchEventToHost" && event.data.data) {
+        var dataStr = JSON.stringify(event.data);
+        console.log("dispatchEventToHost received, eventName:", event.data.data.eventName);
+
+        if (dataStr.includes('"choices"') && !dataStr.includes('"choicesResponse"') && !dataStr.includes('"choiceResponse"')) {
+            console.log("CHOICES DETECTED - Disabling input");
             postIframeDisable();
-        } else if (payload.abstractMessage && payload.abstractMessage.choicesResponse) {
+        } else if (dataStr.includes('"choicesResponse"') || dataStr.includes('"choiceResponse"')) {
+            console.log("CHOICE RESPONSE DETECTED - Enabling input");
             postIframeEnable();
         }
     }
 });
 
 function postIframeEnable() {
-    var iframe = document.getElementById("embeddedMessagingFrame");
-    iframe.contentWindow.postMessage('InputEnable', '*');
-}
-
-function postIframeDisable() {
-    var iframe = document.getElementById("embeddedMessagingFrame");
-    iframe.contentWindow.postMessage('InputDisable', '*');
-}
-
-window.addEventListener("message", (event) => {
-    console.log("Message received:", event.data);
-    
-    if (event.data.method === "EMBEDDED_MESSAGING_DISPATCH_EVENT_TO_HOST" && 
-        event.data.data?.eventDetails?.conversationEntry?.entryPayload) {
-        
-        let payload = JSON.parse(event.data.data.eventDetails.conversationEntry.entryPayload);
-        console.log("Parsed payload:", payload);
-        
-        if (payload.abstractMessage && payload.abstractMessage.choices) {
-            console.log("Choices detected - disabling input");
-            postIframeDisable();
-        } else if (payload.abstractMessage && payload.abstractMessage.choicesResponse) {
-            console.log("Choice response detected - enabling input");
-            postIframeEnable();
-        }
-    }
-});
-
-function postIframeEnable() {
-    // Try multiple possible iframe selectors
-    var iframe = document.getElementById("embeddedMessagingFrame") || 
+    var iframe = document.getElementById("embeddedMessagingFrame") ||
                  document.querySelector('iframe[name*="Messaging"]') ||
                  document.querySelector('iframe[id*="embeddedMessaging"]');
-    
     if (iframe) {
-        console.log("Found iframe, sending InputEnable");
+        console.log("Sending InputEnable");
         iframe.contentWindow.postMessage('InputEnable', '*');
     } else {
         console.error("Iframe not found!");
-        console.log("Available iframes:", document.querySelectorAll('iframe'));
     }
 }
 
 function postIframeDisable() {
-    var iframe = document.getElementById("embeddedMessagingFrame") || 
+    var iframe = document.getElementById("embeddedMessagingFrame") ||
                  document.querySelector('iframe[name*="Messaging"]') ||
                  document.querySelector('iframe[id*="embeddedMessaging"]');
-    
     if (iframe) {
-        console.log("Found iframe, sending InputDisable");
+        console.log("Sending InputDisable");
         iframe.contentWindow.postMessage('InputDisable', '*');
     } else {
         console.error("Iframe not found!");
-        console.log("Available iframes:", document.querySelectorAll('iframe'));
     }
 }
 </script>
