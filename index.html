@@ -2,100 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JamesHardie Chat DE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JH FULL chat test</title>
 </head>
 <body>
-  <h1>JamesHardie FULL Chat DE</h1>
-
-  <script type="text/javascript">
+  <script>
     function initEmbeddedMessaging() {
-      embeddedservice_bootstrap.settings.language = "de";
-      embeddedservice_bootstrap.init(
-        "00DUD0000091hKI",
-        "Messaging_Chat_DE",
-        "https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617",
-        { scrt2URL: "https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com" }
-      );
+      try {
+        embeddedservice_bootstrap.settings.language = 'de';
+        embeddedservice_bootstrap.init(
+          '00DUD0000091hKI',
+          'Messaging_Chat_DE',
+          'https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617',
+          {
+            scrt2URL: 'https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com'
+          }
+        );
+      } catch (err) {
+        console.error('Error loading Embedded Messaging:', err);
+      }
     }
   </script>
-  <script type="text/javascript"
+
+  <script
     src="https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617/assets/js/bootstrap.min.js"
-    onload="initEmbeddedMessaging()"></script>
-
-  <script>
-    (function () {
-      let isLocked = false;
-      let blocker = null;
-      let timer = null;
-      const FOOTER_HEIGHT = 78;
-
-      function getIframe() {
-        return document.getElementById("embeddedMessagingFrame")
-          || document.querySelector('iframe[name*="Messaging"]')
-          || document.querySelector('iframe[id*="embeddedMessaging"]');
-      }
-
-      function ensureBlocker() {
-        if (blocker) return blocker;
-        blocker = document.createElement("div");
-        blocker.style.position = "fixed";
-        blocker.style.zIndex = "2147483647";
-        blocker.style.pointerEvents = "auto";
-        blocker.style.background = "rgba(240,240,240,0.72)";
-        blocker.style.borderTop = "1px solid rgba(0,0,0,0.1)";
-        blocker.style.display = "none";
-        document.body.appendChild(blocker);
-        return blocker;
-      }
-
-      function syncBlocker() {
-        const iframe = getIframe();
-        if (!iframe || !blocker) return;
-        const r = iframe.getBoundingClientRect();
-        blocker.style.left = r.left + "px";
-        blocker.style.top = (r.bottom - FOOTER_HEIGHT) + "px";
-        blocker.style.width = r.width + "px";
-        blocker.style.height = FOOTER_HEIGHT + "px";
-      }
-
-      function lockInput() {
-        if (isLocked) return;
-        isLocked = true;
-        ensureBlocker();
-        blocker.style.display = "block";
-        syncBlocker();
-        timer = timer || setInterval(syncBlocker, 120);
-        console.log("INPUT LOCKED (overlay shown)");
-      }
-
-      function unlockInput() {
-        if (!isLocked) return;
-        isLocked = false;
-        if (blocker) blocker.style.display = "none";
-        if (timer) { clearInterval(timer); timer = null; }
-        console.log("INPUT UNLOCKED (overlay hidden)");
-      }
-
-      window.addEventListener("resize", () => isLocked && syncBlocker());
-      window.addEventListener("scroll", () => isLocked && syncBlocker(), true);
-
-      window.addEventListener("message", function (event) {
-        const root = event.data;
-        if (!(root && root.event === "dispatchEventToHost" && root.data)) return;
-
-        const raw = root.data?.eventData?.conversationEntry?.entryPayload;
-        if (!raw) return;
-
-        let payload;
-        try { payload = typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return; }
-
-        const msg = payload?.abstractMessage;
-        if (!msg) return;
-
-        if (msg.choices) lockInput();
-        if (msg.choicesResponse) unlockInput();
-      });
-    })();
+    onload="initEmbeddedMessaging()">
   </script>
 </body>
 </html>
