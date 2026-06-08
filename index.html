@@ -51,6 +51,54 @@ function postIframeDisable() {
     var iframe = document.getElementById("embeddedMessagingFrame");
     iframe.contentWindow.postMessage('InputDisable', '*');
 }
+
+window.addEventListener("message", (event) => {
+    console.log("Message received:", event.data);
+    
+    if (event.data.method === "EMBEDDED_MESSAGING_DISPATCH_EVENT_TO_HOST" && 
+        event.data.data?.eventDetails?.conversationEntry?.entryPayload) {
+        
+        let payload = JSON.parse(event.data.data.eventDetails.conversationEntry.entryPayload);
+        console.log("Parsed payload:", payload);
+        
+        if (payload.abstractMessage && payload.abstractMessage.choices) {
+            console.log("Choices detected - disabling input");
+            postIframeDisable();
+        } else if (payload.abstractMessage && payload.abstractMessage.choicesResponse) {
+            console.log("Choice response detected - enabling input");
+            postIframeEnable();
+        }
+    }
+});
+
+function postIframeEnable() {
+    // Try multiple possible iframe selectors
+    var iframe = document.getElementById("embeddedMessagingFrame") || 
+                 document.querySelector('iframe[name*="Messaging"]') ||
+                 document.querySelector('iframe[id*="embeddedMessaging"]');
+    
+    if (iframe) {
+        console.log("Found iframe, sending InputEnable");
+        iframe.contentWindow.postMessage('InputEnable', '*');
+    } else {
+        console.error("Iframe not found!");
+        console.log("Available iframes:", document.querySelectorAll('iframe'));
+    }
+}
+
+function postIframeDisable() {
+    var iframe = document.getElementById("embeddedMessagingFrame") || 
+                 document.querySelector('iframe[name*="Messaging"]') ||
+                 document.querySelector('iframe[id*="embeddedMessaging"]');
+    
+    if (iframe) {
+        console.log("Found iframe, sending InputDisable");
+        iframe.contentWindow.postMessage('InputDisable', '*');
+    } else {
+        console.error("Iframe not found!");
+        console.log("Available iframes:", document.querySelectorAll('iframe'));
+    }
+}
 </script>
 
 </body>
