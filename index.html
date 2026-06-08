@@ -5,65 +5,29 @@
   <title>Einstein Bot Test</title>
 </head>
 <body>
-  <h1>JamesHardie FULL TEST Chat DE</h1>
+  <h1>JamesHardie FULL Chat DE</h1>
+  
+  <script type='text/javascript'>
+	function initEmbeddedMessaging() {
+		try {
+			embeddedservice_bootstrap.settings.language = 'de'; // For example, enter 'en' or 'en-US'
 
-<script type='text/javascript'>
-    function initEmbeddedMessaging() {
-        try {
-            embeddedservice_bootstrap.settings.language = 'en_US';
+			embeddedservice_bootstrap.init(
+				'00DUD0000091hKI',
+				'Messaging_Chat_DE',
+				'https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617',
+				{
+					scrt2URL: 'https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com'
+				}
+			);
+		} catch (err) {
+			console.error('Error loading Embedded Messaging: ', err);
+		}
+	};
+</script>
+<script type='text/javascript' src='https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 
-            embeddedservice_bootstrap.init(
-                '00DUD0000091hKI',
-                'Messaging_Chat_DE',
-                'https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617',
-                {
-                    scrt2URL: 'https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com'
-                }
-            );
-
-            // Use MutationObserver to hide input when chat loads
-            hideTextInput();
-
-        } catch (err) {
-            console.error('Error loading Embedded Messaging: ', err);
-        }
-    }
-
-    function hideTextInput() {
-        // Inject CSS to hide the text input area
-        const style = document.createElement('style');
-        style.id = 'hide-chat-input';
-        style.textContent = `
-            /* Hide text input area in Embedded Messaging */
-            [class*="cTextInputContainer"],
-            [class*="textInputContainer"],
-            [class*="conversationInputContainer"] textarea,
-            [class*="inputFooter"] textarea,
-            [class*="sendMessageButton"],
-            .embeddedMessaging textarea,
-            .embeddedMessaging [class*="TextInput"] {
-                display: none !important;
-                visibility: hidden !important;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Also observe for dynamically loaded content
-        const observer = new MutationObserver(function(mutations) {
-            const chatContainer = document.querySelector('[class*="embeddedMessaging"], [class*="embedded-messaging"]');
-            if (chatContainer) {
-                // Reapply style if needed
-                if (!document.getElementById('hide-chat-input')) {
-                    document.head.appendChild(style);
-                }
-            }
-        });
-
-        observer.observe(document.body, { 
-            childList: true, 
-            subtree: true 
-        });
-    }
+  
 </script>
 <script type='text/javascript' src='https://jameshardieeurope.my.site.com/ESWMessagingChatDE1779433863855/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 
