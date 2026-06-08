@@ -1,31 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Einstein Bot Test</title>
-</head>
-<body>
-  <h1>JamesHardie Test Chat DE</h1>
-
 <script type='text/javascript'>
-	function initEmbeddedMessaging() {
-		try {
-			embeddedservice_bootstrap.settings.language = 'de'; // For example, enter 'en' or 'en-US'
+    function initEmbeddedMessaging() {
+        try {
+            embeddedservice_bootstrap.settings.language = 'en_US';
 
-			embeddedservice_bootstrap.init(
-				'00DUD0000091hKI',
-				'Messaging_Chat_DE',
-				'https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617',
-				{
-					scrt2URL: 'https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com'
-				}
-			);
-		} catch (err) {
-			console.error('Error loading Embedded Messaging: ', err);
-		}
-	};
+            embeddedservice_bootstrap.init(
+                '00DUD0000091hKI',
+                'Messaging_Chat_DE',
+                'https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617',
+                {
+                    scrt2URL: 'https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com'
+                }
+            );
+
+            // Hide the text input field, allowing only button clicks
+            embeddedservice_bootstrap.addEventHandler('onEmbeddedMessagingReady', function() {
+                const style = document.createElement('style');
+                style.textContent = `
+                    .embeddedMessagingConversation [class*="inputTextArea"],
+                    .embeddedMessagingConversation textarea,
+                    .embeddedMessagingFrame textarea {
+                        display: none !important;
+                    }
+                    .embeddedMessagingConversation [class*="sendButton"] {
+                        display: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            });
+
+        } catch (err) {
+            console.error('Error loading Embedded Messaging: ', err);
+        }
+    };
 </script>
-<script type='text/javascript' src='https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
-
-</body>
-</html>
