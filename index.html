@@ -1,88 +1,93 @@
-<script>
-(function () {
-  let inputLocked = false;
-  let blocker = null;
-  let syncTimer = null;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JamesHardie Chat DE</title>
+</head>
+<body>
+  <h1>JamesHardie FULL Chat DE</h1>
 
-  function getMessagingIframe() {
-    return document.getElementById("embeddedMessagingFrame")
-      || document.querySelector('iframe[name*="Messaging"]')
-      || document.querySelector('iframe[id*="embeddedMessaging"]');
-  }
-
-  function ensureBlocker() {
-    if (blocker) return blocker;
-    blocker = document.createElement("div");
-    blocker.id = "em-input-blocker";
-    blocker.style.position = "fixed";
-    blocker.style.zIndex = "2147483647";
-    blocker.style.pointerEvents = "auto";
-    blocker.style.background = "rgba(240,240,240,0.65)";
-    blocker.style.borderTop = "1px solid rgba(0,0,0,0.08)";
-    blocker.style.display = "none";
-    document.body.appendChild(blocker);
-    return blocker;
-  }
-
-  function syncBlockerPosition() {
-    const iframe = getMessagingIframe();
-    if (!iframe || !blocker) return;
-
-    const r = iframe.getBoundingClientRect();
-    const footerHeight = 74; // adjust 64-84 if needed
-    blocker.style.left = `${Math.round(r.left)}px`;
-    blocker.style.top = `${Math.round(r.bottom - footerHeight)}px`;
-    blocker.style.width = `${Math.round(r.width)}px`;
-    blocker.style.height = `${footerHeight}px`;
-  }
-
-  function startSync() {
-    if (syncTimer) return;
-    syncTimer = setInterval(syncBlockerPosition, 150);
-  }
-
-  function stopSync() {
-    if (!syncTimer) return;
-    clearInterval(syncTimer);
-    syncTimer = null;
-  }
-
-  function lockInput() {
-    ensureBlocker();
-    inputLocked = true;
-    blocker.style.display = "block";
-    syncBlockerPosition();
-    startSync();
-    console.log("Input locked (footer overlay active)");
-  }
-
-  function unlockInput() {
-    inputLocked = false;
-    if (blocker) blocker.style.display = "none";
-    stopSync();
-    console.log("Input unlocked");
-  }
-
-  window.addEventListener("resize", () => { if (inputLocked) syncBlockerPosition(); });
-  window.addEventListener("scroll", () => { if (inputLocked) syncBlockerPosition(); }, true);
-
-  window.addEventListener("message", function (event) {
-    if (!(event.data && event.data.event === "dispatchEventToHost" && event.data.data)) return;
-
-    const eventData = event.data.data.eventData;
-    const raw = eventData && eventData.conversationEntry && eventData.conversationEntry.entryPayload;
-    if (!raw) return;
-
-    try {
-      const payload = (typeof raw === "string") ? JSON.parse(raw) : raw;
-      const am = payload && payload.abstractMessage;
-      if (!am) return;
-
-      if (am.choices) lockInput();
-      if (am.choicesResponse) unlockInput();
-    } catch (e) {
-      // ignore non-JSON payload variants
+  <script type="text/javascript">
+    function initEmbeddedMessaging() {
+      try {
+        embeddedservice_bootstrap.settings.language = "de";
+        embeddedservice_bootstrap.init(
+          "00DUD0000091hKI",
+          "Messaging_Chat_DE",
+          "https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617",
+          {
+            scrt2URL: "https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com"
+          }
+        );
+      } catch (err) {
+        console.error("Error loading Embedded Messaging:", err);
+      }
     }
-  });
-})();
-</script>
+  </script>
+
+  <script
+    type="text/javascript"
+    src="https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617/assets/js/bootstrap.min.js"
+    onload="initEmbeddedMessaging()">
+  </script>
+
+  <script>
+    (function () {
+      console.log("Host script loaded");
+
+      function getIframe() {
+        return document.getElementById("embeddedMessagingFrame")
+          || document.querySelector('iframe[name*="Messaging"]')
+          || document.querySelector('iframe[id*="embeddedMessaging"]');
+      }
+
+      function postToIframe(message) {
+        var iframe = getIframe();
+        if (!iframe || !iframe.contentWindow) {
+          console.warn("Messaging iframe not found");
+          return;
+        }
+        iframe.contentWindow.postMessage(message, "*");
+      }
+
+      function handleEntryPayload(rawPayload) {
+        try {
+          var payload = (typeof rawPayload === "string")
+            ? JSON.parse(rawPayload)
+            : rawPayload;
+
+          if (!payload || !payload.abstractMessage) return;
+
+          if (payload.abstractMessage.choices) {
+            console.log("CHOICES DETECTED -> InputDisable");
+            postToIframe("InputDisable");
+            return;
+          }
+
+          if (payload.abstractMessage.choicesResponse) {
+            console.log("CHOICES RESPONSE DETECTED -> InputEnable");
+            postToIframe("InputEnable");
+            return;
+          }
+        } catch (e) {
+          console.warn("Skipping non-JSON payload:", e);
+        }
+      }
+
+      window.addEventListener("message", function (event) {
+        var data = event.data;
+        if (!data || data.event !== "dispatchEventToHost" || !data.data) return;
+
+        var eventData = data.data.eventData;
+        var entryPayload =
+          eventData &&
+          eventData.conversationEntry &&
+          eventData.conversationEntry.entryPayload;
+
+        if (!entryPayload) return;
+        handleEntryPayload(entryPayload);
+      });
+    })();
+  </script>
+</body>
+</html>
