@@ -35,8 +35,8 @@ window.addEventListener("message", function(event) {
 
         if (eventData && eventData.conversationEntry && eventData.conversationEntry.entryPayload) {
             try {
-                var payload = JSON.parse(eventData.conversationEntry.entryPayload);
-                console.log("Parsed entryPayload:", payload);
+                var rawPayload = eventData.conversationEntry.entryPayload;
+                var payload = (typeof rawPayload === 'string') ? JSON.parse(rawPayload) : rawPayload;
 
                 if (payload.abstractMessage && payload.abstractMessage.choices) {
                     console.log("CHOICES DETECTED - Disabling input");
