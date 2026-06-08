@@ -2,6 +2,58 @@
 console.log("Host script loaded - listening for messages");
 
 window.addEventListener("message", (event) => {
+    // Check for dispatchEventToHost events
+    if (event.data && event.data.event === "dispatchEventToHost" && event.data.data) {
+        const eventName = event.data.data.eventName;
+        const eventData = event.data.data.eventData;
+        
+        console.log("Event name:", eventName);
+        console.log("Event data:", eventData);
+        
+        // Convert to string to search for choices
+        const dataStr = JSON.stringify(event.data);
+        
+        if (dataStr.includes('"choices"') && !dataStr.includes('"choicesResponse"') && !dataStr.includes('"choiceResponse"')) {
+            console.log("CHOICES DETECTED - Disabling input");
+            postIframeDisable();
+        }
+        
+        if (dataStr.includes('"choicesResponse"') || dataStr.includes('"choiceResponse"')) {
+            console.log("CHOICE RESPONSE DETECTED - Enabling input");
+            postIframeEnable();
+        }
+    }
+});
+
+function postIframeEnable() {
+    var iframe = document.getElementById("embeddedMessagingFrame") || 
+                 document.querySelector('iframe[name*="Messaging"]') ||
+                 document.querySelector('iframe[id*="embeddedMessaging"]');
+    
+    if (iframe) {
+        console.log("Sending InputEnable to iframe");
+        iframe.contentWindow.postMessage('InputEnable', '*');
+    } else {
+        console.error("Iframe not found!");
+    }
+}
+
+function postIframeDisable() {
+    var iframe = document.getElementById("embeddedMessagingFrame") || 
+                 document.querySelector('iframe[name*="Messaging"]') ||
+                 document.querySelector('iframe[id*="embeddedMessaging"]');
+    
+    if (iframe) {
+        console.log("Sending InputDisable to iframe");
+        iframe.contentWindow.postMessage('InputDisable', '*');
+    } else {
+        console.error("Iframe not found!");
+    }
+}
+</script><script>
+console.log("Host script loaded - listening for messages");
+
+window.addEventListener("message", (event) => {
     // Log everything for debugging
     if (event.data && event.data.event === "dispatchEventToHost") {
         console.log("dispatchEventToHost received:", event.data);
