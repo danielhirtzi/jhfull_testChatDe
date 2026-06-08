@@ -1,78 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Einstein Bot Test</title>
-</head>
-<body>
-  <h1>JamesHardie FULL Chat DE</h1>
-  
-<!-- Your existing Salesforce snippet -->
-<script type='text/javascript'>
-    function initEmbeddedMessaging() {
-        try {
-            embeddedservice_bootstrap.settings.language = 'de';
-            embeddedservice_bootstrap.init(
-                '00DUD0000091hKI',
-                'Messaging_Chat_DE',
-                'https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617',
-                {
-                    scrt2URL: 'https://jameshardieeurope--jhfull.sandbox.my.salesforce-scrt.com'
-                }
-            );
-        } catch (err) {
-            console.error('Error loading Embedded Messaging: ', err);
-        }
-    };
-</script>
-<script type='text/javascript' src='https://jameshardieeurope--jhfull.sandbox.my.site.com/ESWMessagingChatDE1777983133617/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
-
-<!-- ADD THIS SCRIPT - Listens for choices and toggles input -->
 <script>
+console.log("Host script loaded - listening for messages");
+
 window.addEventListener("message", (event) => {
-    if ((event.data.method === "EMBEDDED_MESSAGING_DISPATCH_EVENT_TO_HOST" && 
-         event.data.data.eventDetails.conversationEntry && 
-         event.data.data.eventDetails.conversationEntry.entryPayload)) {
-        let payload = JSON.parse(event.data.data.eventDetails.conversationEntry.entryPayload);
-        if (payload.abstractMessage && payload.abstractMessage.choices) {
+    // Log everything for debugging
+    if (event.data && event.data.event === "dispatchEventToHost") {
+        console.log("dispatchEventToHost received:", event.data);
+        console.log("Full data object:", JSON.stringify(event.data.data, null, 2));
+        
+        // Try to find choices in the data
+        let dataStr = JSON.stringify(event.data.data);
+        if (dataStr.includes('"choices"')) {
+            console.log("Found choices in message!");
             postIframeDisable();
-        } else if (payload.abstractMessage && payload.abstractMessage.choicesResponse) {
+        } else if (dataStr.includes('"choicesResponse"') || dataStr.includes('"choiceResponse"')) {
+            console.log("Found choicesResponse in message!");
             postIframeEnable();
         }
     }
 });
 
 function postIframeEnable() {
-    var iframe = document.getElementById("embeddedMessagingFrame");
-    iframe.contentWindow.postMessage('InputEnable', '*');
-}
-
-function postIframeDisable() {
-    var iframe = document.getElementById("embeddedMessagingFrame");
-    iframe.contentWindow.postMessage('InputDisable', '*');
-}
-
-window.addEventListener("message", (event) => {
-    console.log("Message received:", event.data);
-    
-    if (event.data.method === "EMBEDDED_MESSAGING_DISPATCH_EVENT_TO_HOST" && 
-        event.data.data?.eventDetails?.conversationEntry?.entryPayload) {
-        
-        let payload = JSON.parse(event.data.data.eventDetails.conversationEntry.entryPayload);
-        console.log("Parsed payload:", payload);
-        
-        if (payload.abstractMessage && payload.abstractMessage.choices) {
-            console.log("Choices detected - disabling input");
-            postIframeDisable();
-        } else if (payload.abstractMessage && payload.abstractMessage.choicesResponse) {
-            console.log("Choice response detected - enabling input");
-            postIframeEnable();
-        }
-    }
-});
-
-function postIframeEnable() {
-    // Try multiple possible iframe selectors
     var iframe = document.getElementById("embeddedMessagingFrame") || 
                  document.querySelector('iframe[name*="Messaging"]') ||
                  document.querySelector('iframe[id*="embeddedMessaging"]');
@@ -82,7 +29,6 @@ function postIframeEnable() {
         iframe.contentWindow.postMessage('InputEnable', '*');
     } else {
         console.error("Iframe not found!");
-        console.log("Available iframes:", document.querySelectorAll('iframe'));
     }
 }
 
@@ -96,10 +42,6 @@ function postIframeDisable() {
         iframe.contentWindow.postMessage('InputDisable', '*');
     } else {
         console.error("Iframe not found!");
-        console.log("Available iframes:", document.querySelectorAll('iframe'));
     }
 }
 </script>
-
-</body>
-</html>
